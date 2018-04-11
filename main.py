@@ -22,12 +22,13 @@ pressButtonCommand = None
 setupCommand = None
 
 def cleanCommands():
-    print ('Clean Commands...')
+    print ('Clean Commands!')
     global mqttCommand, pressButtonCommand, setupCommand, mqttMsg
     mqttCommand = False
     pressButtonCommand = False
     setupCommand = False
     mqttMsg = b'NONE'
+    print ('Waiting for new commands...')
 
 def setupPins():
     global pinOut, pinIn
@@ -81,8 +82,10 @@ def main():
              if setupCommand:
                 setup()
              elif mqttCommand and mqttMsg in DICT_MSG_IN:
+                print ('Executing MQTT command!')
                 toogleSwitch(DICT_MSG_IN[mqttMsg])
              elif pressButtonCommand:
+                print ('Executing Button command!')
                 toogleSwitch(pinInValue)
              else:
                 pass
