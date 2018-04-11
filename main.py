@@ -43,7 +43,8 @@ def setupPins():
 def pinInPressCallback(pin):
     global pressButtonCommand,pinInValue
     pressButtonCommand = True
-    pinInValue = pin.value()
+    #pinInValue = pin.value()
+    pinInValue = int(not pinOut.value())
 
 def mqttSubcristionCallback(topic,msg):
     global mqttCommand,mqttMsg
