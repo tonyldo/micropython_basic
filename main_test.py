@@ -46,14 +46,14 @@ def pinInPressCallback(pin):
     command = 'toggleByPress'
     newValue = int(not pinOut.value())
 
+def timerCallback(timer):
+    global command
+    command = 'check'
+
 def mqttSubcristionCallback(topic,msg):
     global command,newValue
     command = 'toggleByMQTT'
     newValue = DICT_MSG_IN[msg]
-
-def timerCallback(timer):
-    global command
-    command = 'check'
 
 def checkAndSendeMQTTMsg():
     umqttClient.getMQTT().check_msg()
@@ -62,7 +62,6 @@ def checkAndSendeMQTTMsg():
     print ('Enter sendMQTTStateLamp method, pinOUt state: ', DICT_MSG_OUT[pinOut.value()])
     umqttClient.getMQTT().publish(STATE_LAMP_TOPIC,DICT_MSG_OUT[pinOut.value()])
     cleanCommand()
-
 
 def toggleSwitch():
     print ('Enter toogleSwitch method, newValue / pinOut.value(): ', DICT_MSG_OUT[newValue],' / ',DICT_MSG_OUT[pinOut.value()])
@@ -79,19 +78,20 @@ def setup():
     setupTimer()
     cleanCommand()
 
-
 def main():
     print ('Enter main method...')
     global command
-    command = 'setup'
-
-    while True:
-        try:
-           {'setup':setup, 'toggleByPress':toggleSwitch, 'toggleByMQTT':toggleSwitch, 'check':checkAndSendeMQTTMsg, 'pass':lambda : None}[command]()
-        except Exception as e:
-           print ('Error: ',e)
-           command = 'setup'
-
+    command = 'setup'     
+    try:
+       while True:
+          try:
+              {'setup':setup, 'toggleByPress':toggleSwitch, 'toggleByMQTT':toggleSwitch, 'check':checkAndSendeMQTTMsg, 'pass':lambda : None}[command]()
+          except Exception as e:
+              print ('Error: ',e)
+              command = 'setup'
+    finally:
+       umqttClient.getMQTT().disconnect()
+       connectWifi.disconnect()
 
 if (__name__) == '__main__':
    main()
