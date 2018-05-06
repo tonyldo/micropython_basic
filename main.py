@@ -7,8 +7,11 @@ from machine import Timer
 
 micropython.alloc_emergency_exception_buf(100)
 
+ssid = 'XT1580 9440'
+password =  '51ad8166fa65'
+
 PIN_OUT = const(2)
-PIN_IN  = const(0)
+PIN_IN  = const(5)
 
 pinOut = None
 pinIn = None
@@ -55,24 +58,28 @@ def mqttSubcristionCallback(topic,msg):
     command = 'toggleByMQTT'
     newValue = DICT_MSG_IN[msg]
 
-def checkAndSendeMQTTMsg():
+def checkAndSendMQTTMsg():
     umqttClient.getMQTT().check_msg()
     if (command == 'toggleByMQTT'):
        return
+    sendState()
+
+def sendState()
     print ('Enter sendMQTTStateLamp method, pinOUt state: ', DICT_MSG_OUT[pinOut.value()])
     umqttClient.getMQTT().publish(STATE_LAMP_TOPIC,DICT_MSG_OUT[pinOut.value()])
     cleanCommand()
+
 
 def toggleSwitch():
     print ('Enter toogleSwitch method, newValue / pinOut.value(): ', DICT_MSG_OUT[newValue],' / ',DICT_MSG_OUT[pinOut.value()])
     if newValue!=pinOut.value():
        pinOut.value(newValue)
-    cleanCommand()
+    sendState()
 
 def setup():
     print ('Enter setup method...')
     setupPins()
-    connectWifi.connect()
+    connectWifi.connect(ssid,password)
     umqttClient.getMQTT(callbackFunction=mqttSubcristionCallback).connect()
     umqttClient.getMQTT().subscribe(SWITCH_LAMP_TOPIC)
     setupTimer()
@@ -81,11 +88,11 @@ def setup():
 def main():
     print ('Enter main method...')
     global command
-    command = 'setup'     
+    command = 'setup'
     try:
        while True:
           try:
-              {'setup':setup, 'toggleByPress':toggleSwitch, 'toggleByMQTT':toggleSwitch, 'check':checkAndSendeMQTTMsg, 'pass':lambda : None}[command]()
+              {'setup':setup, 'toggleByPress':toggleSwitch, 'toggleByMQTT':toggleSwitch, 'check':checkAndSendMQTTMsg, 'pass':lambda : None}[command]()
           except Exception as e:
               print ('Error: ',e)
               command = 'setup'
