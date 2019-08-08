@@ -2,11 +2,11 @@ from simple import MQTTClient
 import machine
 import ubinascii
 
-broker = 'm14.cloudmqtt.com'
-brokerPort = 17769
+broker = 'brokerip'
+brokerPort = brokerport
 clientID = b'esp_'+ubinascii.hexlify(machine.unique_id())
-user = 'albjxxal'
-password = 'nCNxNNZNlsWP'
+user = 'brokeruser'
+password = 'brokerpass'
 mqttClient = None
 
 def getMQTT(callbackFunction=None):
